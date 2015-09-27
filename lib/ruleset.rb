@@ -2,6 +2,23 @@ require "ruleset/version"
 require "pry"
 
 module Ruleset
+  class Ruleset
+    def initialize(*rules)
+      @rules = *rules
+    end
+
+    def evaluate
+      rules.map { |rule| rule.resolve }.all?
+    end
+
+    def resolve
+      evaluate
+    end
+
+    private
+    attr_reader :rules
+  end
+
   class SelfEvaluatingRule
     def initialize(root_term, arguments = {})
       @arguments = arguments
