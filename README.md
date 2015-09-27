@@ -1,8 +1,8 @@
 # Ruleset
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/ruleset`. To experiment with that code, run `bin/console` for an interactive prompt.
+A WIP ruby implementation of David West and Kevin Johnson's Self Evaluating Rules:
 
-TODO: Delete this and the text above, and describe your gem
+http://www.transcendencecorporation.com/files/pdf/RULES.pdf
 
 ## Installation
 
