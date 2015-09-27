@@ -5,34 +5,6 @@ describe Ruleset do
     expect(Ruleset::VERSION).not_to be nil
   end
 
-  describe Ruleset::SelfEvaluatingRule do
-    describe "#evalute" do
-      # An example rule on whether to include a link to an external service:
-      #   1) user is a type 123
-      #   2) header is not xyz company
-      #   3) no errors from external service link generator
-      let(:user)    { "mock-user" }
-      let(:header)  { "mock-header" }
-      let(:service) { "mock-service" }
-      let(:user_123_type)      { Ruleset::UnaryTerm.new(user, :t123?) }
-      let(:header_xyz_company) { Ruleset::UnaryTerm.new(header, :xyz?) }
-      let(:errors_check)       { Ruleset::UnaryTerm.new(service, :include_link?) }
-      let(:example_rule) do
-        sub_term =  Ruleset::KeyWordTerm.new(user_123_type, :&, :header_xyz_company)
-        root_term = Ruleset::KeyWordTerm.new(sub_term, :&, :errors_check)
-        rule = Ruleset::SelfEvaluatingRule.new(root_term)
-      end
-      before do
-        allow(user)   .to receive(:t123?)        .and_return(true)
-        allow(header) .to receive(:xyz?)         .and_return(false)
-        allow(service).to receive(:include_link?).and_return(true)
-      end
-      it "will evaluate the rule and return true/false" do
-        expect(example_rule.evaluate).to eq true
-      end
-    end
-  end
-
   describe Ruleset::Constant do
     describe "#resolve" do
       it "returns the constant's initialized value" do
@@ -74,6 +46,43 @@ describe Ruleset do
       it "returns the result of calling the method on the object with the given arguments" do
         rule = Ruleset::BinaryTerm.new(a_string, :*, 3)
         expect(rule.resolve).to eq "Ho! Ho! Ho! "
+      end
+
+      context "when receiver is also a term" do
+        let(:constant) { Ruleset::Constant.new("here I am") }
+        subject { Ruleset::BinaryTerm.new(constant, :delete, "am") }
+        it "will resolve the rule before call operator" do
+          expect(subject.resolve).to eq "here I "
+        end
+      end
+
+      context "when result of resolving is a term" do
+        let(:redirection) { Ruleset::Constant.new("here I am") }
+        subject           { Ruleset::BinaryTerm.new({key: redirection}, :fetch, :key) }
+        it "will resolve the term before returning" do
+          expect(subject.resolve).to eq "here I am"
+        end
+      end
+    end
+  end
+
+  describe Ruleset::KeyWordTerm do
+    describe "#resolve" do
+      context "when the arguments are also terms" do
+        let(:l) { Ruleset::Constant.new("l") }
+        let(:lo) { Ruleset::Constant.new("lo") }
+        subject { Ruleset::KeyWordTerm.new("hello", :delete, l, lo) }
+        it "will resolve them before calling the operator" do
+          expect(subject.resolve).to eq "heo"
+        end
+      end
+
+      context "when the receiver is a term" do
+        let(:constant) { Ruleset::Constant.new("here I am") }
+        subject { Ruleset::KeyWordTerm.new(constant, :delete, "am") }
+        it "will resolve the rule before call operator" do
+          expect(subject.resolve).to eq "here I "
+        end
       end
     end
   end

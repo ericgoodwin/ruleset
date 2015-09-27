@@ -54,6 +54,7 @@ module Ruleset
 
     def resolve
       @receiver = receiver.resolve if receiver.is_a? Term
+      @argument = argument.resolve if argument.is_a? Term
       outcome = receiver.send(operator, argument)
       outcome.is_a?(Term) ? outcome.resolve : outcome
     end
@@ -70,8 +71,8 @@ module Ruleset
     end
 
     def resolve
-      @receiver = receiver.resolve if receiver.is_a? Term
-      @arguments = arguments.each do |arg|
+      @receiver = receiver.resolve if receiver.is_a?(Term)
+      @arguments = arguments.map do |arg|
         arg.is_a?(Term) ? arg.resolve : arg
       end
       outcome = receiver.send(operator, *arguments)
@@ -93,7 +94,8 @@ module Ruleset
     end
 
     def instantiate
-      (source.instantiate).send(getterMessage).instantiate
+      raise NotImplementedError
+      #(source.instantiate).send(getterMessage).instantiate
     end
 
     private
