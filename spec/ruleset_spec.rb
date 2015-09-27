@@ -51,7 +51,15 @@ describe Ruleset do
       context "when receiver is also a term" do
         let(:constant) { Ruleset::Constant.new("here I am") }
         subject { Ruleset::BinaryTerm.new(constant, :delete, "am") }
-        it "will resolve the rule before call operator" do
+        it "will resolve the rule before calling the operator" do
+          expect(subject.resolve).to eq "here I "
+        end
+      end
+
+      context "when the argument is also a term" do
+        let(:constant) { Ruleset::Constant.new("am") }
+        subject { Ruleset::BinaryTerm.new("here I am", :delete, constant) }
+        it "will resolve the argument before calling the operator" do
           expect(subject.resolve).to eq "here I "
         end
       end
